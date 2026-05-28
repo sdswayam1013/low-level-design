@@ -1,0 +1,66 @@
+package main
+
+type Direction int
+
+const (
+	Up Direction = iota
+	Down
+	Idle
+)
+
+type status int
+
+const (
+	Idle1 status = iota
+	moving
+)
+
+type display struct {
+	floor     int
+	direction Direction
+}
+
+type Request struct {
+	floor int
+}
+
+type Elevator struct {
+	id              int
+	currentFloor    int
+	display         display
+	direction       Direction
+	status          status
+	incomingRequest []Request
+}
+
+func (e *Elevator) NewRequest(r Request) {
+	e.incomingRequest = append(e.incomingRequest, r)
+}
+
+func (e *Elevator) Move() {
+	if len(e.incomingRequest) == 0 {
+		e.status = Idle1
+		e.direction = Idle
+		return
+	}
+	var request Request
+	request = e.incomingRequest[0]
+
+	for e.currentFloor != request.floor {
+		if e.currentFloor < request.floor {
+			e.direction = Up
+			e.currentFloor++
+		} else {
+			e.direction = Down
+			e.currentFloor--
+		}
+	}
+}
+
+type ElevatorController struct {
+	elevator *Elevator
+}
+
+func (c *ElevatorController) NewRequest(r Request) {
+	c.elevator.NewRequest(r)
+}
