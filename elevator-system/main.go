@@ -64,3 +64,49 @@ type ElevatorController struct {
 func (c *ElevatorController) NewRequest(r Request) {
 	c.elevator.NewRequest(r)
 }
+
+type InternalButtonDispatcher struct {
+	controller *ElevatorController
+}
+
+func (d *InternalButtonDispatcher) SubmitRequest(floor int) {
+
+	request := Request{
+		floor: floor,
+	}
+
+	d.controller.NewRequest(request)
+}
+
+type InternalButton struct {
+	dispatcher *InternalButtonDispatcher
+}
+
+func (b *InternalButton) PressButton(destination int) {
+	b.dispatcher.SubmitRequest(destination)
+}
+
+func main() {
+
+	elevator := &Elevator{
+		id:           1,
+		currentFloor: 0,
+		direction:    IDLE,
+	}
+
+	controller := &ElevatorController{
+		elevator: elevator,
+	}
+
+	dispatcher := &InternalButtonDispatcher{
+		controller: controller,
+	}
+
+	button := &InternalButton{
+		dispatcher: dispatcher,
+	}
+
+	button.PressButton(5)
+
+	elevator.Move()
+}
